@@ -1,0 +1,40 @@
+@startuml
+actor User
+participant System
+participant "Платежный шлюз" as Gateway
+participant "Склад" as Warehouse
+
+User -> System: Вход в систему
+User -> System: Выбор товаров\nДобавление в корзину
+User -> System: Подтверждение заказа
+
+System -> Warehouse: Проверка наличия товаров
+Warehouse --> System: Результат проверки
+
+alt Все товары доступны
+    System -> User: Заказ подтверждён
+else Товары недоступны
+    System -> User: Сообщение: изменить корзину
+    return
+end
+
+User -> System: Выбор способа оплаты
+
+alt Онлайн-платёж
+    System -> Gateway: Обработка платежа
+    Gateway --> System: Статус платежа
+
+    alt Платёж успешен
+        System -> User: Подтверждение оплаты
+    else Ошибка платежа
+        System -> User: Уведомление об ошибке
+        return
+    end
+else Оплата при получении
+    System -> User: Подтверждение выбора
+end
+
+System -> Warehouse: Уведомление о сборке заказа
+System -> User: Итоговое подтверждение заказа
+
+@enduml
